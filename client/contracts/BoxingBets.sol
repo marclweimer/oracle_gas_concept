@@ -14,7 +14,7 @@ contract BoxingBets is Ownable {
     mapping(bytes32 => Bet[]) private matchToBets;
 
     //boxing results oracle
-    address internal boxingOracleAddr = 0;
+    address internal boxingOracleAddr = address(0);
         OracleInterface internal boxingOracle = OracleInterface(boxingOracleAddr);
 
     //constants

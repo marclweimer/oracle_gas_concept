@@ -86,7 +86,7 @@ contract BoxingOracle is Ownable {
     /// @param _participantCount number of participants 
     /// @param _date date set for the match 
     /// @return the unique id of the newly created match 
-    function addMatch(string _name, string _participants, uint8 _participantCount, uint _date) onlyOwner public returns (bytes32) {
+    function addMatch(string memory _name, string memory _participants, uint8 _participantCount, uint _date) onlyOwner public returns (bytes32) {
 
         //hash the crucial info to get a unique id 
         bytes32 id = keccak256(abi.encodePacked(_name, _participantCount, _date)); 
@@ -127,7 +127,7 @@ contract BoxingOracle is Ownable {
 
     /// @notice gets the unique ids of all pending matches, in reverse chronological order
     /// @return an array of unique match ids
-    function getPendingMatches() public view returns (bytes32[]) {
+    function getPendingMatches() public view returns (bytes32[] memory) {
         uint count = 0; 
 
         //get count of pending matches 
@@ -152,7 +152,7 @@ contract BoxingOracle is Ownable {
 
     /// @notice gets the unique ids of matches, pending and decided, in reverse chronological order
     /// @return an array of unique match ids
-    function getAllMatches() public view returns (bytes32[]) {
+    function getAllMatches() public view returns (bytes32[] memory) {
         bytes32[] memory output = new bytes32[](matches.length); 
 
         //get all ids 
@@ -171,8 +171,8 @@ contract BoxingOracle is Ownable {
     /// @return match data of the specified match 
     function getMatch(bytes32 _matchId) public view returns (
         bytes32 id,
-        string name, 
-        string participants,
+        string memory name, 
+        string memory participants,
         uint8 participantCount,
         uint date, 
         MatchOutcome outcome, 
@@ -193,8 +193,8 @@ contract BoxingOracle is Ownable {
     /// @return match data 
     function getMostRecentMatch(bool _pending) public view returns (
         bytes32 id,
-        string name, 
-        string participants,
+        string memory name, 
+        string memory participants,
         uint8 participantCount,
         uint date, 
         MatchOutcome outcome, 
@@ -225,7 +225,7 @@ contract BoxingOracle is Ownable {
     /// @notice gets the address of this contract 
     /// @return address 
     function getAddress() public view returns (address) {
-        return this;
+        return address(this);
     }
 
     /// @notice for testing 

@@ -108,7 +108,7 @@ library DateLib {
         return fromUnixTimestamp(_timestamp/1000);
     }
 
-    function fromUnixTimestamp(uint _timestamp) internal pure returns (DateTime dt memory) {
+    function fromUnixTimestamp(uint _timestamp) internal pure returns (DateTime memory dt) {
         uint secondsAccountedFor = 0;
         uint buf;
         uint8 i;
@@ -153,12 +153,12 @@ library DateLib {
         dt.weekday = getWeekday(_timestamp);
     }
 
-    function toTimestamp(DateTime _date memory) internal pure returns (uint timestamp) {
+    function toTimestamp(DateTime memory _date) internal pure returns (uint timestamp) {
         uint output = toUnixTimestamp(_date); 
         return output * 1000 + _date.ms;
     }
 
-    function toUnixTimestamp(DateTime _date memory) internal pure returns (uint timestamp) {
+    function toUnixTimestamp(DateTime memory _date) internal pure returns (uint timestamp) {
         uint16 i;
 
         // Year
