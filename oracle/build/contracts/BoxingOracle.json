@@ -19529,9 +19529,38 @@
     "name": "solc",
     "version": "0.5.12+commit.7709ece9.Emscripten.clang"
   },
-  "networks": {},
+  "networks": {
+    "5777": {
+      "events": {
+        "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "previousOwner",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "internalType": "address",
+              "name": "newOwner",
+              "type": "address"
+            }
+          ],
+          "name": "OwnershipTransferred",
+          "type": "event",
+          "signature": "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0"
+        }
+      },
+      "links": {},
+      "address": "0x2ce63aBE135902227b12bBc4ffdD6E8a89782CfF",
+      "transactionHash": "0x89410b04aaeabb7950c17213d4e430eb2cd509d68a14952c22b3230a973c7aae"
+    }
+  },
   "schemaVersion": "3.0.20",
-  "updatedAt": "2020-01-23T20:47:14.225Z",
+  "updatedAt": "2020-01-23T21:39:32.311Z",
+  "networkType": "ethereum",
   "devdoc": {
     "author": "John R. Kosinski",
     "methods": {
