@@ -77,7 +77,7 @@ contract petrolPump is Ownable {
         return output; 
     }
 
-    /// @notice gets the specified petrolGrade 
+    /// @notice gets the specified petrolGrade in a format that can help track sales for the day using unique IDs
     /// @param _petrolGradeId the unique id of the desired petrolGrade for that specific date
     /// @return petrolGrade data of the specified petrolGrade 
     function getpetrolGrade(bytes32 _petrolGradeId) public view returns (
@@ -95,29 +95,6 @@ contract petrolPump is Ownable {
         else {
             return (msg.sender == address, "Transaction not Authorized"); 
         }
-    }
-
-    /// @notice gets the most recent petrolGrade or pending petrolGrade 
-    /// @param _pending if true, will return only the most recent pending petrolGrade; otherwise, returns the most recent petrolGrade either pending or completed
-    /// @return petrolGrade data 
-    function getMostRecentpetrolGrade(bool _pending) public view returns (
-        bytes32 id,
-        string memory name, 
-        uint price,
-        uint date, 
-        ) {
-
-        bytes32 petrolGradeId = 0; 
-        bytes32[] memory ids;
-
-        ids = getAllpetrolGrades();
-        }
-        if (ids.length > 0) {
-            petrolGradeId = ids[0]; 
-        }
-        
-        //by default, return a null petrolGrade
-        return getpetrolGrade(petrolGradeId); 
     }
 
     /// @notice can be used by a client contract to ensure that they've connected to this contract interface successfully

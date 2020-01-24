@@ -4,136 +4,105 @@ import "./Ownable.sol";
 import "./OracleInterface.sol";
 
 
-/// @title BoxingBets
-/// @author John R. Kosinski
-/// @notice Takes bets and handles payouts for boxing matches
-contract BoxingBets is Ownable {
+/// @title PetrolPump
+/// @author John R. Kosinski modified by Marc Weimer for a proof of concept
+/// @notice Takes money and interacts with oracle to operate petrol pump payments
+contract PetrolPump is Ownable {
 
     //mappings
-    mapping(address => bytes32[]) private userToBets;
-    mapping(bytes32 => Bet[]) private matchToBets;
+    mapping(address => bytes32[]) private userToPetroGrades;
+    mapping(bytes32 => PetroGrade[]) private pumpToPetroGrades;
 
-    //boxing results oracle
-    address internal boxingOracleAddr = address(0);
-        OracleInterface internal boxingOracle = OracleInterface(boxingOracleAddr);
+    //petropump oracle
+    address internal petroPumpOracleAddr = address(0);
+        OracleInterface internal petroPumpOracle = OracleInterface(petroPumpOracleAddr);
 
-    //constants
-    uint internal minimumBet = 1000000000000;
+    //constants - payment made to hold cash while fuel is dispensed
+    uint internal minimumHold = 1000000000000;
 
-    struct Bet {
+    struct PetroGrade {
         address user;
-        bytes32 matchId;
+        bytes32 petrolGradeId;
         uint amount;
-        uint8 chosenWinner;
+        
     }
 
-    enum BettableOutcome {
-        Fighter1,
-        Fighter2
-    }
-
-    /// @notice determines whether or not the user has already bet on the given match
+    /// @notice determines whether or not the user has already paid for gas today
     /// @param _user address of a user
-    /// @param _matchId id of a match
-    /// @param _chosenWinner the index of the participant to bet on (to win)
-    /// @return true if the given user has already placed a bet on the given match
-    function _betIsValid(address _user, bytes32 _matchId, uint8 _chosenWinner) private view returns (bool) {
+    /// @param _petrolGradeId id which is created based on grade, price and date in the oracle contract
+    /// @return true if the given user has already purchased gas today
+    function _PetroGradeIsValid(address _user, bytes32 _petrolGradeId) private view returns (bool) {
 
         return true;
     }
 
-    /// @notice determines whether or not bets may still be accepted for the given match
-    /// @param _matchId id of a match
-    /// @return true if the match is bettable
-    function _matchOpenForBetting(bytes32 _matchId) private view returns (bool) {
+    /// @notice determines whether or not this grade of petrol can be sold today
+    /// @param _petrolGradeId id of a petrol being sold that day
+    /// @return true if the specific grade is in stock and can be sold
+    function _gradeOpenForSale(_petrolGradeId);(bytes32 _petrolGradeId) private view returns (bool) {
 
         return true;
     }
 
 
-    /// @notice gets a list ids of all currently bettable matches
-    /// @return array of match ids
-    function getBettableMatches() public view returns (bytes32[] memory) {
-        return boxingOracle.getPendingMatches();
-    }
-
-    /// @notice returns the full data of the specified match
-    /// @param _matchId the id of the desired match
-    /// @return match data
-    function getMatch(bytes32 _matchId) public view returns (
+    /// @notice gets a list ids of all available petrol for sale
+    /// @param _petrolGradeId the id of the fuel grade for sale that day
+    /// @return array of fuel grades for sale
+    function getMatch(bytes32 _petrolGradeId) public view returns (
         bytes32 id,
         string memory name,
-        string memory participants,
-        uint8 participantCount,
+        uint price,
         uint date,
-        OracleInterface.MatchOutcome outcome,
-        int8 winner) {
+        OracleInterface.getPetroGrade name,
+        ) {
 
-        return boxingOracle.getMatch(_matchId);
+        return petroPumpOracle.getPetroGrade(_petrolGradeId);
     }
 
-    /// @notice returns the full data of the most recent bettable match
-    /// @return match data
-    function getMostRecentMatch() public view returns (
-        bytes32 id,
-        string memory name,
-        string memory participants,
-        uint participantCount,
-        uint date,
-        OracleInterface.MatchOutcome outcome,
-        int8 winner) {
+    /// @notice places a non-rescindable deposit at the pump for fuel to be dispensed
+    /// @param _petrolGradeId the id of the grade chosen for that day
+    function placePetroGrade(bytes32 _petrolGradeId) public payable {
 
-        return boxingOracle.getMostRecentMatch(true);
-    }
+        //Up front deposit must be above a certain minimum
+        require(msg.value >= minimumHold, "Initial Payment amount must be >= minimum hold");
 
-    /// @notice places a non-rescindable bet on the given match
-    /// @param _matchId the id of the match on which to bet
-    /// @param _chosenWinner the index of the participant chosen as winner
-    function placeBet(bytes32 _matchId, uint8 _chosenWinner) public payable {
+        //make sure that grade choice exists
+        require(petroPumpOracle.matchExists(_petrolGradeId), "Specified fuel grade not found");
 
-        //bet must be above a certain minimum
-        require(msg.value >= minimumBet, "Bet amount must be >= minimum bet");
-
-        //make sure that match exists
-        require(boxingOracle.matchExists(_matchId), "Specified match not found");
-
-        //require that chosen winner falls within the defined number of participants for match
-        require(_betIsValid(msg.sender, _matchId, _chosenWinner), "Bet is not valid");
-
-        //match must still be open for betting
-        require(_matchOpenForBetting(_matchId), "Match not open for betting");
+        //require that chosen fuel grade is an option and available
+        require(_PetroGradeIsValid(msg.sender, _petrolGradeId), "PetroGrade is not available");
 
         //transfer the money into the account
-        //address(this).transfer(msg.value);
+        address(this).transfer(msg.value);
 
-        //add the new bet
-        Bet[] storage bets = matchToBets[_matchId];
-        bets.push(Bet(msg.sender, _matchId, msg.value, _chosenWinner))-1;
+        //add the new PetroGrade
+        PetroGrade[] storage PetroGrades = pumpToPetroGrades[_petrolGradeId];
+        PetroGrades.push(PetroGrade(msg.sender, _petrolGradeId, msg.value))-1;
 
         //add the mapping
-        bytes32[] storage userBets = userToBets[msg.sender];
-        userBets.push(_matchId);
+        bytes32[] storage userPetroGrades = userToPetroGrades[msg.sender];
+        userPetroGrades.push(_petrolGradeId);
     }
 
-    /// @notice for testing; tests that the boxing oracle is callable
+    /// @notice for testing; tests that the petrolpump oracle is callable
     /// @return true if connection successful
     function testOracleConnection() public view returns (bool) {
-        return boxingOracle.testConnection();
+        return petroPumpOracle.testConnection();
     }
 
-    /// @notice sets the address of the boxing oracle contract to use
+    /// @notice sets the address of the petrolpump oracle contract to use
     /// @dev setting a wrong address may result in false return value, or error
-    /// @param _oracleAddress the address of the boxing oracle
+    /// @param _oracleAddress the address of the petrolpump oracle
     /// @return true if connection to the new oracle address was successful
     function setOracleAddress(address _oracleAddress) external onlyOwner returns (bool) {
-        boxingOracleAddr = _oracleAddress;
-        boxingOracle = OracleInterface(boxingOracleAddr);
-        return boxingOracle.testConnection();
+        petroPumpOracleAddr = _oracleAddress;
+        petroPumpOracle = OracleInterface(petroPumpOracleAddr);
+        return petroPumpOracle.testConnection();
     }
 
-    /// @notice gets the address of the boxing oracle being used
+    /// @notice gets the address of the petrolpump oracle being used
     /// @return the address of the currently set oracle
     function getOracleAddress() external view returns (address) {
-        return boxingOracleAddr;
+        return petroPumpOracleAddr;
     }
 }
