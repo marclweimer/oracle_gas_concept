@@ -54,7 +54,7 @@ contract petrolPump is Ownable {
         require(!petrolGradeExists(id));
         
         //add the petrolGrade 
-        uint newIndex = petrolGrades.push(petrolGrade(id, _name, _price, _date, -1))-1; 
+        uint newIndex = petrolGrades.push(petrolGrade(id, _name, _price, _date))-1; 
         petrolGradeIdToIndex[id] = newIndex+1;
         
         //return the unique id of the new petrolGrade for that specific transaction
@@ -84,7 +84,7 @@ contract petrolPump is Ownable {
         bytes32 id,
         string memory name, 
         uint price,
-        uint date,
+        uint date
         ) {
         
         //get the petrolGrade 
